@@ -34,9 +34,10 @@
          </table>
       </div>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
    </body>
-   <script type = "text/javascript" >
+   <script type="text/javascript">
     $(document).ready(function() {
         $('#checkboxesMain').on('click', function(e) {
             if ($(this).is(':checked', true)) {
@@ -58,34 +59,67 @@
                 studentIdArr.push($(this).attr('data-id'));
             });
             if (studentIdArr.length <= 0) {
-                alert("Choose min one item to remove.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Choose at least one item to remove.'
+                });
             } else {
-                if (confirm("Are you sure?")) {
-                    var stuId = studentIdArr.join(",");
-                    $.ajax({
-                        url: "{{url('delete-all')}}",
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        data: 'ids=' + stuId,
-                        success: function(data) {
-                            if (data['status'] == true) {
-                                $(".checkbox:checked").each(function() {
-                                    $(this).parents("tr").remove();
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Konfirmasi',
+                    text: 'Apakah Anda yakin ingin menghapus data terpilih?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var stuId = studentIdArr.join(",");
+                        $.ajax({
+                            url: "{{url('delete-all')}}",
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            data: 'ids=' + stuId,
+                            success: function(data) {
+    if (data['status'] == true) {
+        $(".checkbox:checked").each(function() {
+            $(this).parents("tr").remove();
+        });
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: data['message']
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload(); // Merefresh halaman
+            }
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Error occurred.'
+        });
+                                }
+                            },
+                            error: function(data) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: data.responseText
                                 });
-                                alert(data['message']);
-                            } else {
-                                alert('Error occured.');
                             }
-                        },
-                        error: function(data) {
-                            alert(data.responseText);
-                        }
-                    });
-                }
+                        });
+                    }
+                });
             }
         });
     });
- </script>
+</script>
+
+
 </html>

@@ -19,4 +19,6 @@ Route::get('/', function () {
 });
 
 
-Route::resource('/index', StudentController::class);
+Route::get('index', [StudentController::class, 'index']);
+Route::delete('delete-all', [StudentController::class, 'destroy']);
+
