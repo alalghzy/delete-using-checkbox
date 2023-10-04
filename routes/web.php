@@ -18,5 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::get('index', [StudentController::class, 'index']);
-Route::delete('delete-all', [StudentController::class, 'removeMulti']);
+Route::delete('delete-all', [StudentController::class, 'destroy']);
+
